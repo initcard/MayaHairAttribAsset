@@ -1,0 +1,3 @@
+[submodule "maya_utils"]
+	path = maya_utils
+	url = https://github.com/yes7rose/maya_utils
