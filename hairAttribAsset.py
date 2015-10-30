@@ -2,7 +2,7 @@ import sys
 import json
 
 import maya.cmds as cmds
-# import pymel.core as pmcore
+import pymel.core as pmcore
 
 from PySide  import QtGui, QtCore
 
@@ -10,42 +10,50 @@ import maya_utils.maya_utils as maya_utils
 
 MayaMainWindow = maya_utils.shibokenGetMayaMainWindow()
 
-class HairAttribCache(QtGui.QDialog):
-    def __init__(self, parent=None):
-        super(HairAttribCache, self).__init__(parent)
+hairAttribNameList = ["hairsPerClump", "hairColor", "opacity", "specularColor", "specularPower", \
+                      "translucence", "diffuseRand"]
 
-        self.cacheDict = {}
+class HairAttribAsset(QtGui.QDialog):
+    def __init__(self, parent=None):
+        super(HairAttribAsset, self).__init__(parent)
+        
+        self.assetDict = {}
         self.createUi()
 
     def createUi(self):
         # TODO Create a simple dialog
         # Top layout
-        fileNameLabel = QtGui.QLabel("Cache File:")
-        self.fileNameLineEdit = QtGui.QLineEdit()
+        fileNameLabel = QtGui.QLabel("Asset File:")
+        self.assetFileNameLineEdit = QtGui.QLineEdit()
         self.seletCacheFileBtn = QtGui.QPushButton("...")
 
         topLayout = QtGui.QHBoxLayout()
         topLayout.addWidget(fileNameLabel)
-        topLayout.addWidget(self.fileNameLineEdit)
+        topLayout.addWidget(self.assetFileNameLineEdit)
         topLayout.addWidget(self.seletCacheFileBtn)
 
         # cached attrib list
-        self.cachedAttribList = QtGui.QListView()
+        self.cachedAttribListView = QtGui.QListView()
+        self.cachedAttribListModel = QtGui.QStringListModel()
+        
         # operation buttons
         self.applyAttribBtn = QtGui.QPushButton("Apply")
-        self.saveAttribBtn = QtGui.QPushButton("Cache")
+        self.addAttribToLibBtn = QtGui.QPushButton("Add2Asaset")
         self.refreshListBtn = QtGui.QPushButton("Refresh")
         buttonsLayout = QtGui.QVBoxLayout()
         buttonsLayout.addWidget(self.applyAttribBtn)
-        buttonsLayout.addWidget(self.saveAttribBtn)
+        buttonsLayout.addWidget(self.addAttribToLibBtn)
         buttonsLayout.addWidget(self.refreshListBtn)
+
         # hair nodes list
-        self.hairNodesList = QtGui.QListView()
+        self.hairNodesListView = QtGui.QListView()
+        self.hairNodesListModel = QtGui.QStringListModel()
+        
         # bottom layout
         bottomLayout = QtGui.QHBoxLayout()
-        bottomLayout.addWidget(self.cachedAttribList)
+        bottomLayout.addWidget(self.cachedAttribListView)
         bottomLayout.addLayout(buttonsLayout)
-        bottomLayout.addWidget(self.hairNodesList)
+        bottomLayout.addWidget(self.hairNodesListView)
 
         # main layout, vertical
         mainLayout = QtGui.QVBoxLayout()
@@ -53,36 +61,104 @@ class HairAttribCache(QtGui.QDialog):
         mainLayout.addLayout(bottomLayout)
 
         self.setLayout(mainLayout)
+        self.setWindowTitle("Hair Attrib Asset")
+
+        # setup connections
+        self.seletCacheFileBtn.clicked.connect(self.specifyAssetFile)
+        
+        self.addAttribToLibBtn.clicked.connect(self.appendAttribsToCache)
+        self.refreshListBtn.clicked.connect(self.refreshList)
+        pass
+    
+    def refreshList(self):
+        # TODO: refresh asset listview and node listview
+
+        # asset list
+        print("refreshing cache list")
+        cacheFileName = str(self.assetFileNameLineEdit.text())
+        if cacheFileName:
+            self.readCache(cacheFileName)
+            assetStrList = self.assetDict.keys()
+            self.cachedAttribListModel.setStringList(assetStrList)
+            self.cachedAttribListView.setModel(self.cachedAttribListModel)
+        
+        # hair nodes list
+        print("refreshing node list")
+        hairNodesStrList = cmds.ls(type = "hairSystem")
+        self.hairNodesListModel.setStringList(hairNodesStrList)
+        self.hairNodesListView.setModel(self.hairNodesListModel)
+        
         pass
 
     def readCache(self, fileName):
         # TODO read cache contents from specified file
-        cacheFile = open(fileName, mode='r')
-        self.cacheDict = json.load(cacheFile)
-        cachefile.close()
+        with open(fileName, mode='r') as cacheFile:
+            self.assetDict = json.load(cacheFile)
+
+        if not self.assetDict:
+            pmcore.displayError("The cache file is empty...")
         pass
 
-    def appendAttribsToCache(self, cacheFile):
+    def appendAttribsToCache(self):
         # TODO append hair attribs to cache file
+        (assetName, ok) = QtGui.QInputDialog.getText(self, "input asset Name", "Asset Name:", inputMethodHints = "untiltled")
+        if not ok:
+            return
+        
+        if not assetName:
+            pmcore.displayWarning("Pleate enter a name")
+            return
+        
+        attribDict = self.getAttribsDictFromSelectedHairNode()
+        
+        if self.assetDict.has_key(str(assetName)):
+            ok = QtGui.QMessageBox(self, "Replace Asset?", "Replace Asset?")
+            if ok:
+                self.assetDict[assetName] = attribDict
+                self.writeCacheFile()
+            else:
+                return
+        else:
+            self.assetDict[assetName]=attribDict                  
+            print(assetName)
+            self.writeCacheFile()
         pass
 
-    def specifyCacheFile(self):
+    def specifyAssetFile(self):
         # TODO specify the cache file
-        cacheFileName = QtGui.QFileDialog.getOpenFileName(self, "select cache file", ".",  "*.*")
-        self.fileNameLineEdit.setText(cacheFileName)
+        (cacheFileName, filter) = QtGui.QFileDialog.getOpenFileName(self, "select cache file", ".", "*.json")
+        if not cacheFileName:
+            return
+        print(cacheFileName)
+        self.assetFileNameLineEdit.setText(str(cacheFileName))
         pass
 
-    def getCachedAttrib(self):
+    def getAssetList(self):
         # TODO get select attribute from cache file
+        assetNameList = self.assetDict.keys()
+        return assetNameList
         pass
 
     def writeCacheFile(self):
         # TODO write cache file
+        cacheFileName = str(self.assetFileNameLineEdit.text())
+        with open(cacheFileName, 'w') as cacheFile:
+            json.dump(self.assetDict, cacheFile, indent=4)
         pass
 
-    def getAttribsFromSelectedHairNode(self):
+    def getAttribsDictFromSelectedHairNode(self):
         # TODO create a dict from Selected Hair Node
+        attibDict = {}
+        index = self.hairNodesListView.currentIndex()
+        selectedItem = self.hairNodesListModel.data(index, QtCore.Qt.EditRole)
+        
+        for attrib in hairAttribNameList:
+            attribValue = cmds.getAttr(selectedItem+"."+attrib) 
+            attibDict[attrib] =  attribValue
+        
+        print(dict)
+        return attibDict
         pass
 
-dlg = HairAttribCache()
-dlg.show()
+#dlg = HairAttribAsset()
+#dlg.show()
