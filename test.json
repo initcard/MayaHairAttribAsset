@@ -1,0 +1,128 @@
+{
+    "red_test": {
+        "opacity": 1.0, 
+        "specularPower": 3.0, 
+        "translucence": 0.5, 
+        "hairsPerClump": 10, 
+        "specularColor": [
+            [
+                0.3499999940395355, 
+                0.3499999940395355, 
+                0.30000001192092896
+            ]
+        ], 
+        "hairColor": [
+            [
+                1.0, 
+                0.0, 
+                0.0
+            ]
+        ], 
+        "diffuseRand": 0.2
+    }, 
+    "testa": {
+        "opacity": 1.0, 
+        "specularPower": 3.0, 
+        "translucence": 0.5, 
+        "hairsPerClump": 10, 
+        "specularColor": [
+            [
+                0.3499999940395355, 
+                0.3499999940395355, 
+                0.30000001192092896
+            ]
+        ], 
+        "hairColor": [
+            [
+                0.30000001192092896, 
+                0.25, 
+                0.15000000596046448
+            ]
+        ], 
+        "diffuseRand": 0.2
+    }, 
+    "testc": {
+        "opacity": 1.0, 
+        "specularPower": 3.0, 
+        "translucence": 0.5, 
+        "hairsPerClump": 10, 
+        "specularColor": [
+            [
+                0.3499999940395355, 
+                0.3499999940395355, 
+                0.30000001192092896
+            ]
+        ], 
+        "hairColor": [
+            [
+                0.30000001192092896, 
+                0.25, 
+                0.15000000596046448
+            ]
+        ], 
+        "diffuseRand": 0.2
+    }, 
+    "testb": {
+        "opacity": 1.0, 
+        "specularPower": 3.0, 
+        "translucence": 0.5, 
+        "hairsPerClump": 10, 
+        "specularColor": [
+            [
+                0.3499999940395355, 
+                0.3499999940395355, 
+                0.30000001192092896
+            ]
+        ], 
+        "hairColor": [
+            [
+                0.30000001192092896, 
+                0.25, 
+                0.15000000596046448
+            ]
+        ], 
+        "diffuseRand": 0.2
+    }, 
+    "green_test": {
+        "opacity": 1.0, 
+        "specularPower": 3.0, 
+        "translucence": 0.5, 
+        "hairsPerClump": 10, 
+        "specularColor": [
+            [
+                0.3499999940395355, 
+                0.3499999940395355, 
+                0.30000001192092896
+            ]
+        ], 
+        "hairColor": [
+            [
+                0.0, 
+                1.0, 
+                0.0
+            ]
+        ], 
+        "diffuseRand": 0.2
+    }, 
+    "red_color": {
+        "opacity": 1.0, 
+        "specularPower": 3.0, 
+        "translucence": 0.5, 
+        "hairsPerClump": 10, 
+        "specularColor": [
+            [
+                0.3499999940395355, 
+                0.3499999940395355, 
+                0.30000001192092896
+            ]
+        ], 
+        "hairColor": [
+            [
+                1.0, 
+                0.0, 
+                0.0
+            ]
+        ], 
+        "diffuseRand": 0.2
+    }
+}

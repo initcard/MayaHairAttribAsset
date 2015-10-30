@@ -33,12 +33,12 @@ class HairAttribAsset(QtGui.QDialog):
         topLayout.addWidget(self.seletCacheFileBtn)
 
         # cached attrib list
-        self.cachedAttribListView = QtGui.QListView()
-        self.cachedAttribListModel = QtGui.QStringListModel()
+        self.assetAttribsListView = QtGui.QListView()
+        self.assetAttribsListModel = QtGui.QStringListModel()
         
         # operation buttons
         self.applyAttribBtn = QtGui.QPushButton("Apply")
-        self.addAttribToLibBtn = QtGui.QPushButton("Add2Asaset")
+        self.addAttribToLibBtn = QtGui.QPushButton("Add2Asset")
         self.refreshListBtn = QtGui.QPushButton("Refresh")
         buttonsLayout = QtGui.QVBoxLayout()
         buttonsLayout.addWidget(self.applyAttribBtn)
@@ -51,7 +51,7 @@ class HairAttribAsset(QtGui.QDialog):
         
         # bottom layout
         bottomLayout = QtGui.QHBoxLayout()
-        bottomLayout.addWidget(self.cachedAttribListView)
+        bottomLayout.addWidget(self.assetAttribsListView)
         bottomLayout.addLayout(buttonsLayout)
         bottomLayout.addWidget(self.hairNodesListView)
 
@@ -66,7 +66,8 @@ class HairAttribAsset(QtGui.QDialog):
         # setup connections
         self.seletCacheFileBtn.clicked.connect(self.specifyAssetFile)
         
-        self.addAttribToLibBtn.clicked.connect(self.appendAttribsToCache)
+        self.applyAttribBtn.clicked.connect(self.applyAssetAttribs)
+        self.addAttribToLibBtn.clicked.connect(self.addAttribsToAssetLib)
         self.refreshListBtn.clicked.connect(self.refreshList)
         pass
     
@@ -77,10 +78,10 @@ class HairAttribAsset(QtGui.QDialog):
         print("refreshing cache list")
         cacheFileName = str(self.assetFileNameLineEdit.text())
         if cacheFileName:
-            self.readCache(cacheFileName)
+            self.readAssets(cacheFileName)
             assetStrList = self.assetDict.keys()
-            self.cachedAttribListModel.setStringList(assetStrList)
-            self.cachedAttribListView.setModel(self.cachedAttribListModel)
+            self.assetAttribsListModel.setStringList(assetStrList)
+            self.assetAttribsListView.setModel(self.assetAttribsListModel)
         
         # hair nodes list
         print("refreshing node list")
@@ -90,7 +91,7 @@ class HairAttribAsset(QtGui.QDialog):
         
         pass
 
-    def readCache(self, fileName):
+    def readAssets(self, fileName):
         # TODO read cache contents from specified file
         with open(fileName, mode='r') as cacheFile:
             self.assetDict = json.load(cacheFile)
@@ -99,7 +100,7 @@ class HairAttribAsset(QtGui.QDialog):
             pmcore.displayError("The cache file is empty...")
         pass
 
-    def appendAttribsToCache(self):
+    def addAttribsToAssetLib(self):
         # TODO append hair attribs to cache file
         (assetName, ok) = QtGui.QInputDialog.getText(self, "input asset Name", "Asset Name:", inputMethodHints = "untiltled")
         if not ok:
@@ -122,6 +123,8 @@ class HairAttribAsset(QtGui.QDialog):
             self.assetDict[assetName]=attribDict                  
             print(assetName)
             self.writeCacheFile()
+        
+        self.refreshList()
         pass
 
     def specifyAssetFile(self):
@@ -160,5 +163,37 @@ class HairAttribAsset(QtGui.QDialog):
         return attibDict
         pass
 
-#dlg = HairAttribAsset()
-#dlg.show()
+    def applyAssetAttribs(self):
+        # TODO: set hair node attribs from asset
+        
+        index = self.assetAttribsListView.currentIndex()
+        selectedAttribAsset = self.assetAttribsListModel.data(index, QtCore.Qt.EditRole)
+        
+        attribs = self.assetDict[selectedAttribAsset]
+        print(attribs)
+
+        index = self.hairNodesListView.currentIndex()
+        selectedHairNode = self.hairNodesListModel.data(index, QtCore.Qt.EditRole)
+        
+        for attrib in hairAttribNameList:
+            nodeAttrib = pmcore.general.PyNode(str(selectedHairNode+ '.' +attrib))
+            
+            value = attribs[attrib]
+            print(value)
+            # value type is int or float
+            if type(value) is type(1) or type(value) is type(1.0):
+                nodeAttrib.set(value)
+            
+            # value type is list
+            if type(value) is type([]):
+                nodeAttrib.set(value[0])   
+            
+        print(selectedHairNode)
+
+        
+        
+        
+        
+        
+        
+        
