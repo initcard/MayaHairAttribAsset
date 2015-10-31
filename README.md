@@ -5,7 +5,7 @@ save Maya hair node attributes for later use.
 	1. Use git clone into young Maya Python site-packages folder.
             (exp. D:\Autodesk\Maya2016\Python\Lib\site-packages).
 
-        2. You need run: git submodule init & git submodule update to download
+    2. You need run: git submodule init & git submodule update to download
            the maya_utils.
 	3. In young Maya Python editor, copy follow line & Run( You MAY have to restart Maya):
 	
